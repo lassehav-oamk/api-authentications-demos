@@ -4,19 +4,22 @@ let users = [
   {
     id: 1,
     userName: 'tester',
+    email: 'tester@mail.com',
     password: 'testerpassword', // Example only! Do NOT EVER STORE PASSWORD ANYWHERE IN PLAINTEXT!
     validApiKey: null
   },
   {
     id: 2,
     userName: "johndoe",
+    email: 'john@mail.com',
     password: 'johndoepassword', // Example only! Do NOT EVER STORE PASSWORD ANYWHERE IN PLAINTEXT!
     validApiKey: null
   },
 ];
 
 module.exports = {
-  getUserByName: (username) => users.find(u => u.userName == username),
+  getUserById: (id) => users.find(u => u.id == id),
+  getUserByName: (userName) => users.find(u => u.userName == userName),
   resetApiKey: (userId) => {
     const user = users.find(u => u.id == userId);
     if(user === undefined)
