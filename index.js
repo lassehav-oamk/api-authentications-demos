@@ -1,12 +1,10 @@
 const express = require('express');
-const bodyParser = require('body-parser');
 
 const app = express();
 const todos = require('./services/todos');
 const users = require('./services/users');
 const port = 3000;
 
-app.use(bodyParser.json());
 app.use(express.json());
 
 app.get('/', (req, res) => res.send('This route is not protected'));
