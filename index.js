@@ -78,9 +78,6 @@ passport.use(new BasicStrategy(
     }
 
     /* Verify password match */
-    console.log("uname " + password);
-    console.log("stored " + user.password);
-
     if(bcrypt.compareSync(password, user.password) == false)
     {
       // Password does not match
@@ -106,21 +103,18 @@ app.post('/registerBasic',
   {
     res.status(400);
     res.json({status: "Missing username from body"})
-    res.send();
     return;
   }
   if('password' in req.body == false )
   {
     res.status(400);
     res.json({status: "Missing password from body"})
-    res.send();
     return;
   }
   if('email' in req.body == false )
   {
     res.status(400);
     res.json({status: "Missing email from body"})
-    res.send();
     return;
   }
 
@@ -128,7 +122,7 @@ app.post('/registerBasic',
   console.log(hashedPassword);
   users.addUser(req.body.username, req.body.email, hashedPassword);
 
-  res.sendStatus(201);
+  res.status(201).json({ status: "created" });
 });
 
 
@@ -201,7 +195,7 @@ app.get(
     };
 
     const options = {
-      expiresIn: '10s'
+      expiresIn: '1d'
     }
 
     /* Sign the token with payload, key and options.
