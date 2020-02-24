@@ -3,23 +3,23 @@ const uuidv4 = require('uuid/v4');
 let users = [
   {
     id: 1,
-    userName: 'tester',
+    username: 'tester',
     email: 'tester@mail.com',
-    password: 'testerpassword', // Example only! Do NOT EVER STORE PASSWORD ANYWHERE IN PLAINTEXT!
+    password: '$2y$06$PhZ74dT8/5g6B8SgssFq6ey4ojLxmP6pos2DcevMUGw25Vc9jGEou', // testerpassword
     validApiKey: null
   },
   {
     id: 2,
-    userName: "johndoe",
+    username: "johndoe",
     email: 'john@mail.com',
-    password: 'johndoepassword', // Example only! Do NOT EVER STORE PASSWORD ANYWHERE IN PLAINTEXT!
+    password: '$2y$06$eQav1OaIyWSUnlvPSaFXRe5gWRqXd.s9vac1SV1GafxAr8hdmsgCy', // johndoepassword
     validApiKey: null
   },
 ];
 
 module.exports = {
   getUserById: (id) => users.find(u => u.id == id),
-  getUserByName: (userName) => users.find(u => u.userName == userName),
+  getUserByName: (username) => users.find(u => u.username == username),
   resetApiKey: (userId) => {
     const user = users.find(u => u.id == userId);
     if(user === undefined)
@@ -36,9 +36,17 @@ module.exports = {
     {
       return false
     }
-    
+
     return user.validApiKey;
   },
-  getUserWithApiKey: (apiKey) => users.find(u => u.validApiKey == apiKey)
+  getUserWithApiKey: (apiKey) => users.find(u => u.validApiKey == apiKey),
+  addUser: (username, email, password) => {
+    users.push({
+      id: uuidv4(),
+      username,
+      email,
+      password
+    });
+  }
 
 }

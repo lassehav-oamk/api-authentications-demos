@@ -1,4 +1,6 @@
 const express = require('express');
+const bodyParser = require('body-parser');
+const bcrypt = require('bcryptjs');
 
 const app = express();
 const todos = require('./services/todos');
@@ -30,7 +32,7 @@ app.get('/apiKeyGenerate/:userId', (req, res) => {
 });
 
 function checkForApiKey(req, res, next)
-{  
+{
   const receivedKey = req.get('X-Api-Key');
   if(receivedKey === undefined)
   {
@@ -46,7 +48,7 @@ function checkForApiKey(req, res, next)
   req.user = user;
 
   // pass the control to the next handler in line
-  next();  
+  next();
 }
 
 app.get('/apiKeyProtectedResource', checkForApiKey, (req, res) => {
@@ -74,9 +76,8 @@ passport.use(new BasicStrategy(
       return done(null, false, { message: "HTTP Basic username not found" });
     }
 
-    /* Verify password match, note that the password here is in plaintext.
-       DO NOT EVER STORE PASSWORDS in plaintexts */
-    if(user.password !== password) 
+    /* Verify password match */
+    if(bcrypt.compareSync(password, user.password) == false)
     {
       // Password does not match
       console.log("HTTP Basic password not matching username");
@@ -89,16 +90,44 @@ passport.use(new BasicStrategy(
 app.get('/httpBasicProtectedResource',
         passport.authenticate('basic', { session: false }),
         (req, res) => {
-  
   res.json({
     yourProtectedResource: "profit"
   });
 });
 
+app.post('/registerBasic',
+        (req, res) => {
+
+  if('username' in req.body == false )
+  {
+    res.status(400);
+    res.json({status: "Missing username from body"})
+    return;
+  }
+  if('password' in req.body == false )
+  {
+    res.status(400);
+    res.json({status: "Missing password from body"})
+    return;
+  }
+  if('email' in req.body == false )
+  {
+    res.status(400);
+    res.json({status: "Missing email from body"})
+    return;
+  }
+
+  const hashedPassword = bcrypt.hashSync(req.body.password, 6);
+  console.log(hashedPassword);
+  users.addUser(req.body.username, req.body.email, hashedPassword);
+
+  res.status(201).json({ status: "created" });
+});
+
 
 /*********************************************
  * JWT authentication
- * Passport module is used, see documentation 
+ * Passport module is used, see documentation
  * http://www.passportjs.org/packages/passport-jwt/
  ********************************************/
 const jwt = require('jsonwebtoken');
@@ -121,7 +150,7 @@ passport.use(new JwtStrategy(options, function(jwt_payload, done) {
   console.log("Processing JWT payload for token content:");
   console.log(jwt_payload);
 
-  
+
   /* Here you could do some processing based on the JWT payload.
   For example check if the key is still valid based on expires property.
   */
@@ -138,12 +167,12 @@ passport.use(new JwtStrategy(options, function(jwt_payload, done) {
 
 
 app.get(
-  '/jwtProtectedResource', 
+  '/jwtProtectedResource',
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
     console.log("jwt");
     res.json(
-      { 
+      {
         status: "Successfully accessed protected resource with JWT",
         user: req.user
       }
@@ -152,20 +181,20 @@ app.get(
 );
 
 app.get(
-  '/loginForJWT', 
+  '/loginForJWT',
   passport.authenticate('basic', { session: false }),
   (req, res) => {
-    const body = { 
+    const body = {
       id: req.user.id,
-      email : req.user.email 
-    };  
+      email : req.user.email
+    };
 
     const payload = {
       user : body
     };
 
     const options = {
-      expiresIn: '10s'
+      expiresIn: '1d'
     }
 
     /* Sign the token with payload, key and options.
