@@ -34,14 +34,12 @@ app.get('/apiKeyGenerate/:userId', (req, res) => {
 function checkForApiKey(req, res, next)
 {
   const receivedKey = req.get('X-Api-Key');
-  if(receivedKey === undefined)
-  {
+  if(receivedKey === undefined) {
     return res.status(400).json({ reason: "X-Api-Key header missing"});
   }
 
   const user = users.getUserWithApiKey(receivedKey);
-  if(user === undefined)
-  {
+  if(user === undefined) {
     return res.status(400).json({ reason: "Incorrect api key"});
   }
 
@@ -69,16 +67,14 @@ passport.use(new BasicStrategy(
   function(username, password, done) {
 
     const user = users.getUserByName(username);
-    if(user == undefined)
-    {
+    if(user == undefined) {
       // Username not found
       console.log("HTTP Basic username not found");
       return done(null, false, { message: "HTTP Basic username not found" });
     }
 
     /* Verify password match */
-    if(bcrypt.compareSync(password, user.password) == false)
-    {
+    if(bcrypt.compareSync(password, user.password) == false) {
       // Password does not match
       console.log("HTTP Basic password not matching username");
       return done(null, false, { message: "HTTP Basic password not found" });
@@ -98,20 +94,17 @@ app.get('/httpBasicProtectedResource',
 app.post('/registerBasic',
         (req, res) => {
 
-  if('username' in req.body == false )
-  {
+  if('username' in req.body == false ) {
     res.status(400);
     res.json({status: "Missing username from body"})
     return;
   }
-  if('password' in req.body == false )
-  {
+  if('password' in req.body == false ) {
     res.status(400);
     res.json({status: "Missing password from body"})
     return;
   }
-  if('email' in req.body == false )
-  {
+  if('email' in req.body == false ) {
     res.status(400);
     res.json({status: "Missing email from body"})
     return;
@@ -155,12 +148,10 @@ passport.use(new JwtStrategy(options, function(jwt_payload, done) {
   For example check if the key is still valid based on expires property.
   */
   const now = Date.now() / 1000;
-  if(jwt_payload.exp > now)
-  {
+  if(jwt_payload.exp > now) {
     done(null, jwt_payload.user);
   }
-  else // expired
-  {
+  else {// expired
     done(null, false);
   }
 }));
@@ -179,6 +170,36 @@ app.get(
     );
   }
 );
+
+app.get('/todosJWT', 
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => {
+    console.log('GET /todosJWT')    
+    const t = todos.getAllUserTodos(req.user.id);
+    res.json(t);
+})
+
+/*
+Body JSON structure example
+{
+	"description": "Example todo",
+	"dueDate": "25-02-2020"
+}
+*/
+app.post('/todosJWT', 
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => {
+    console.log('POST /todosJWT');
+    console.log(req.body);
+    if(('description' in req.body) && ( 'dueDate' in req.body)) {
+      todos.insertTodo(req.body.description, req.body.dueDate, req.user.id);
+      res.json(todos.getAllUserTodos(req.user.id));
+    }
+    else {
+      res.sendStatus(400);
+    }
+    
+})
 
 app.get(
   '/loginForJWT',
