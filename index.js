@@ -126,7 +126,12 @@ app.post('/registerBasic',
 const jwt = require('jsonwebtoken');
 const JwtStrategy = require('passport-jwt').Strategy,
       ExtractJwt = require('passport-jwt').ExtractJwt;
-const jwtSecretKey = require('./jwt-key.json');
+let jwtSecretKey = null;
+if(process.env.JWTKEY === undefined) {
+  jwtSecretKey = require('./jwt-key.json').secret;
+} else {
+  jwtSecretKey = process.env.JWTKEY;
+}
 
 
 let options = {}
@@ -137,7 +142,7 @@ options.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
 
 /* This is the secret signing key.
    You should NEVER store it in code  */
-options.secretOrKey = (process.env.JWTKEY || jwtSecretKey.secret);
+options.secretOrKey = jwtSecretKey;
 
 passport.use(new JwtStrategy(options, function(jwt_payload, done) {
   console.log("Processing JWT payload for token content:");
