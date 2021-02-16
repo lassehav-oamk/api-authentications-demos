@@ -5,7 +5,7 @@ const bcrypt = require('bcryptjs');
 const app = express();
 const todos = require('./services/todos');
 const users = require('./services/users');
-const port = 3000;
+const port = (process.env.PORT || 3000);
 
 app.use(express.json());
 
@@ -126,7 +126,7 @@ app.post('/registerBasic',
 const jwt = require('jsonwebtoken');
 const JwtStrategy = require('passport-jwt').Strategy,
       ExtractJwt = require('passport-jwt').ExtractJwt;
-const jwtSecretKey = require('./jwt-key.json');
+const jwtSecretKey = (process.env.JWTKEY || require('./jwt-key.json'));
 
 
 let options = {}
@@ -171,10 +171,10 @@ app.get(
   }
 );
 
-app.get('/todosJWT', 
+app.get('/todosJWT',
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
-    console.log('GET /todosJWT')    
+    console.log('GET /todosJWT')
     const t = todos.getAllUserTodos(req.user.id);
     res.json(t);
 })
@@ -186,7 +186,7 @@ Body JSON structure example
 	"dueDate": "25-02-2020"
 }
 */
-app.post('/todosJWT', 
+app.post('/todosJWT',
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
     console.log('POST /todosJWT');
@@ -198,7 +198,7 @@ app.post('/todosJWT',
     else {
       res.sendStatus(400);
     }
-    
+
 })
 
 app.get(
