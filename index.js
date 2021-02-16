@@ -5,7 +5,7 @@ const bcrypt = require('bcryptjs');
 const app = express();
 const todos = require('./services/todos');
 const users = require('./services/users');
-const port = (process.env.PORT || 3000);
+const port = (process.env.PORT || 80);
 
 app.use(express.json());
 
@@ -126,7 +126,7 @@ app.post('/registerBasic',
 const jwt = require('jsonwebtoken');
 const JwtStrategy = require('passport-jwt').Strategy,
       ExtractJwt = require('passport-jwt').ExtractJwt;
-const jwtSecretKey = (process.env.JWTKEY || require('./jwt-key.json'));
+const jwtSecretKey = require('./jwt-key.json');
 
 
 let options = {}
@@ -137,7 +137,7 @@ options.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
 
 /* This is the secret signing key.
    You should NEVER store it in code  */
-options.secretOrKey = jwtSecretKey.secret;
+options.secretOrKey = (process.env.JWTKEY || jwtSecretKey.secret);
 
 passport.use(new JwtStrategy(options, function(jwt_payload, done) {
   console.log("Processing JWT payload for token content:");
