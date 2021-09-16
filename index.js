@@ -91,6 +91,15 @@ app.get('/httpBasicProtectedResource',
   });
 });
 
+
+/*******************************
+  Here expectation is that body is of following structure
+  {
+    "username": "foo",
+    "email": "foo@bar.com",
+    "password": "somepassword"
+  }
+*/
 app.post('/registerBasic',
         (req, res) => {
 
@@ -110,7 +119,8 @@ app.post('/registerBasic',
     return;
   }
 
-  const hashedPassword = bcrypt.hashSync(req.body.password, 6);
+  const salt = bcrypt.genSaltSync(6);
+  const hashedPassword = bcrypt.hashSync(req.body.password, salt);
   console.log(hashedPassword);
   users.addUser(req.body.username, req.body.email, hashedPassword);
 
@@ -206,7 +216,7 @@ app.post('/todosJWT',
 
 })
 
-app.get(
+app.post(
   '/loginForJWT',
   passport.authenticate('basic', { session: false }),
   (req, res) => {
