@@ -1,13 +1,16 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcryptjs');
+const cors = require('cors');
 
 const app = express();
 const todos = require('./services/todos');
 const users = require('./services/users');
-const port = (process.env.PORT || 80);
+const port = (process.env.PORT || 5000);
 
+app.use(cors());
 app.use(express.json());
+
 
 app.get('/', (req, res) => res.send('This route is not protected'));
 
