@@ -194,6 +194,7 @@ app.get('/todosJWT',
   (req, res) => {
     console.log('GET /todosJWT')
     const t = todos.getAllUserTodos(req.user.id);
+    console.log('User Id: ' + req.user.id);
     res.json(t);
 })
 

@@ -1,7 +1,13 @@
 const uuidv4 = require('uuid/v4');
 
 
-let todos = [];
+let todos = [{
+  id: uuidv4(),
+  userId: 1, // tester user 1
+  description: "Demo todo item",
+  dueDate: "2021-12-24",
+  statue: "open"
+}];
 
 module.exports = {
   insertTodo: (description, dueDate,  userId) => {
